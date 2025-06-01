@@ -60,7 +60,7 @@ function AddStudentPage() {
 
     return (
         <div className="p-4 max-w-md mx-auto bg-white shadow-md rounded-lg">
-            <h2 className="text-2xl font-bold mb-4 text-center">เพิ่มนักเรียนใหม่</h2>
+            <h2 className="text-2xl font-bold mb-4 text-center text-gray-700">เพิ่มนักเรียนใหม่</h2>
             {message && (
                 <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative mb-4" role="alert">
                     <strong className="font-bold">Info!</strong>

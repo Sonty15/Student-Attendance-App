@@ -85,7 +85,7 @@ function ReportPage() {
 
             attendances.forEach(att => {
                 const studentId = att.student.studentId;
-                const date = format(parseISO(att.date), 'yyyy-MM-dd'); // Format date to YYYY-MM-DD for consistency
+                const date = format(parseISO(att.date), 'yyyy-MM-dd', { locale: th }); // Format date to YYYY-MM-DD for consistency
                 uniqueDates.add(date);
 
                 if (!studentMap.has(studentId)) {
@@ -133,13 +133,13 @@ function ReportPage() {
 
     return (
         <div className="p-4">
-            <h2 className="text-2xl font-bold mb-4 text-center">รายงานการเช็คชื่อ</h2>
+            <h2 className="text-2xl font-bold mb-4 text-center text-gray-700">รายงานการเช็คชื่อ</h2>
 
             <div className="mb-6">
                 <label htmlFor="class-select" className="block text-gray-700 text-sm font-bold mb-2">เลือกชั้นเรียน:</label>
                 <select
                     id="class-select"
-                    className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    className="shadow border rounded w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline"
                     value={selectedClass}
                     onChange={(e) => setSelectedClass(e.target.value)}
                 >
@@ -161,7 +161,7 @@ function ReportPage() {
                             checked={reportType === 'daily'}
                             onChange={() => setReportType('daily')}
                         />
-                        <span className="ml-2">รายงานรายวัน</span>
+                        <span className="ml-2 text-gray-700">รายงานรายวัน</span>
                     </label>
                     <label className="inline-flex items-center">
                         <input
@@ -172,7 +172,7 @@ function ReportPage() {
                             checked={reportType === 'yearly'}
                             onChange={() => setReportType('yearly')}
                         />
-                        <span className="ml-2">รายงานทั้งหมด 1 ปีการศึกษา</span>
+                        <span className="ml-2 text-gray-700">รายงานทั้งหมด 1 ปีการศึกษา</span>
                     </label>
                 </div>
             </div>
@@ -183,7 +183,7 @@ function ReportPage() {
                     <input
                         type="date"
                         id="daily-date"
-                        className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow border rounded w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline"
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
                     />

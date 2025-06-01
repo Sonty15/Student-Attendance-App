@@ -22,6 +22,7 @@ function AttendancePage() {
 
     useEffect(() => {
         fetchStudentsAndAttendance();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedClass, selectedDate]);
 
     const fetchStudentsAndAttendance = async () => {
@@ -85,14 +86,14 @@ function AttendancePage() {
 
     return (
         <div className="p-4">
-            <h2 className="text-2xl font-bold mb-4 text-center">เช็คชื่อนักเรียน</h2>
+            <h2 className="text-2xl font-bold mb-4 text-center text-gray-700">เช็คชื่อนักเรียน</h2>
 
             <div className="flex flex-col md:flex-row gap-4 mb-6">
                 <div className="w-full md:w-1/2">
                     <label htmlFor="class-select" className="block text-gray-700 text-sm font-bold mb-2">เลือกชั้นเรียน:</label>
                     <select
                         id="class-select"
-                        className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow border rounded w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline"
                         value={selectedClass}
                         onChange={(e) => setSelectedClass(e.target.value)}
                     >
@@ -106,14 +107,14 @@ function AttendancePage() {
                     <input
                         type="date"
                         id="date-select"
-                        className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow border rounded w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline"
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
                     />
                 </div>
             </div>
 
-            <p className="text-lg font-semibold mb-4 text-center">
+            <p className="text-lg font-semibold mb-4 text-center text-gray-700">
                 ชั้นเรียน: {selectedClass} วันที่: {displayDate}
             </p>
 
