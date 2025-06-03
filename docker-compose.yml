@@ -1,0 +1,36 @@
+version: '3.8' # ระบุเวอร์ชันของ Docker Compose file format
+name: student-attendance-app # ตั้งชื่อโปรเจกต์
+
+services:
+  mongodb:
+    image: mongo:8.0.9 
+    container_name: student-attendance-mongodb # ตั้งชื่อ Container
+    ports:
+      - "27017:27017" # Map port 27017 ของ Container ไปยัง port 27017 ของ Host
+    volumes:
+      - mongo_data:/data/db # Mount Volume เพื่อเก็บข้อมูล MongoDB ให้ถาวร
+    networks:
+      - app_network # ใช้ Network ที่กำหนดไว้ในส่วน networks
+
+  mongo-express: 
+    image: mongo-express:latest # ใช้ Docker Image ของ Mongo Express
+    container_name: mongo_express_container # ตั้งชื่อ container
+    ports:
+      - "8081:8081" # Map port: HOST_PORT:CONTAINER_PORT
+                    # Mongo Express default port คือ 8081
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongodb # Hostname ของ MongoDB (ใช้ชื่อ Service ของ MongoDB)
+      ME_CONFIG_MONGODB_PORT: 27017     # Port ของ MongoDB (ใน Container)
+      ME_CONFIG_BASICAUTH_USERNAME: admin # Username สำหรับ Login เข้า Mongo Express GUI
+      ME_CONFIG_BASICAUTH_PASSWORD: admin # Password สำหรับ Login เข้า Mongo Express GUI
+    depends_on: # กำหนด Dependency: mongo-express จะเริ่มหลัง mongodb
+      - mongodb
+    networks:
+      - app_network
+
+volumes:
+  mongo_data:
+
+networks: # กำหนด Docker Network ที่ใช้ร่วมกัน
+  app_network:
+    driver: bridge # ใช้ bridge driver (default)

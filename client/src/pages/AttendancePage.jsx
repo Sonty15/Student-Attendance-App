@@ -1,4 +1,3 @@
-// frontend/src/pages/AttendancePage.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { format, parseISO } from 'date-fns';
@@ -37,7 +36,9 @@ function AttendancePage() {
             const attendanceRes = await axios.get(`${API_URL}/attendance/daily/${selectedClass}/${selectedDate}`);
             const currentAttendance = {};
             attendanceRes.data.forEach(att => {
-                currentAttendance[att.student.studentId] = att.status;
+                if (att.student && att.student._id) {
+                    currentAttendance[att.student._id] = att.status;
+                    }
             });
             setAttendanceStatus(currentAttendance);
 
@@ -56,32 +57,48 @@ function AttendancePage() {
         }));
     };
 
-    const handleSubmitAttendance = async (studentId) => {
-        const status = attendanceStatus[studentId];
-        if (!status) {
-            setMessage(`กรุณาเลือกสถานะสำหรับนักเรียน ID: ${studentId}`);
-            return;
-        }
-
+    const handleSubmitAttendance = async () => {
+        setLoading(true);
+        setMessage('');
         try {
-            await axios.post(`${API_URL}/attendance/add`, {
-                studentId,
-                date: selectedDate,
-                status
-            });
-            setMessage(`บันทึกการเช็คชื่อนักเรียน ID: ${studentId} สำเร็จ!`);
-            // โหลดข้อมูลใหม่เพื่ออัปเดต UI (ถ้าจำเป็น)
-            fetchStudentsAndAttendance();
-        } catch (error) {
-            console.error("Error saving attendance:", error);
-            if (error.response && error.response.status === 409) {
-                setMessage(`นักเรียน ID: ${studentId} ถูกเช็คชื่อไปแล้วสำหรับวันที่ ${selectedDate}`);
-            } else {
-                setMessage(`เกิดข้อผิดพลาดในการบันทึกการเช็คชื่อนักเรียน ID: ${studentId}`);
+            // แปลง selectedDate เป็น string ในรูปแบบ 'MM/dd/yyyy' ก่อนส่งไป Backend
+            const formattedDate = format(parseISO(selectedDate), 'MM/dd/yyyy');
+
+            const attendanceRecords = students.map(student => ({
+                studentId: student._id,
+                class: selectedClass,
+                date: formattedDate,
+                status: attendanceStatus[student._id] || 'ขาด' // ใช้ attendanceStatus แทน attendanceData
+            }));
+
+            console.log("Final attendanceRecords to send (should be an array):", attendanceRecords);
+            console.log("Is it an array?", Array.isArray(attendanceRecords));
+            console.log("Length of array:", attendanceRecords.length);
+
+            if (!Array.isArray(attendanceRecords) || attendanceRecords.length === 0) {
+                setMessage("ไม่พบข้อมูลนักเรียนสำหรับบันทึกการเข้าเรียน หรือข้อมูลไม่ถูกต้อง");
+                setLoading(false);
+                return;
             }
+
+            const response = await axios.post(`${API_URL}/attendance/add`, attendanceRecords);
+
+            if (response.data.results && response.data.results.every(r => r.success)) {
+                setMessage('บันทึกการเช็คชื่อสำเร็จ!');
+            } else {
+                const failedRecords = response.data.results.filter(r => !r.success);
+                setMessage(`บันทึกการเช็คชื่อบางรายการไม่สำเร็จ: ${failedRecords.map(f => f.message).join(', ')}`);
+            }
+            fetchStudentsAndAttendance(); // เรียก fetchStudentsAndAttendance เพื่อรีเฟรชข้อมูล
+
+        } catch (error) {
+            console.error('Error saving attendance:', error);
+            const errorMessage = error.response?.data?.message || 'เกิดข้อผิดพลาดในการบันทึกการเช็คชื่อ';
+            setMessage(errorMessage);
+        } finally {
+            setLoading(false);
         }
     };
-
     const displayDate = format(parseISO(selectedDate), 'EEEE, dd MMMM yyyy', { locale: th });
 
     return (
@@ -114,7 +131,7 @@ function AttendancePage() {
                 </div>
             </div>
 
-            <p className="text-lg font-semibold mb-4 text-center text-gray-700">
+            <p className="text-mg font-semibold mb-4 text-center text-gray-700">
                 ชั้นเรียน: {selectedClass} วันที่: {displayDate}
             </p>
 
@@ -130,35 +147,40 @@ function AttendancePage() {
             ) : (
                 <div className="space-y-4">
                     {students.length > 0 ? (
-                        students.map(student => (
-                            <div key={student._id} className="bg-white shadow-md rounded-lg p-4 flex flex-col sm:flex-row justify-between items-center">
-                                <div className="mb-2 sm:mb-0 sm:w-1/2">
-                                    <p className="text-lg font-medium">{student.firstName} {student.lastName} ({student.studentId})</p>
-                                    <p className="text-sm text-gray-500">ชั้น: {student.class}</p>
-                                </div>
-                                <div className="flex flex-wrap gap-2 sm:w-1/2 justify-end">
-                                    {['มา', 'ป่วย', 'ลา', 'ขาด'].map(status => (
-                                        <button
-                                            key={status}
-                                            onClick={() => handleStatusChange(student.studentId, status)}
-                                            className={`py-2 px-4 rounded-md text-sm font-semibold
-                                                ${attendanceStatus[student.studentId] === status
-                                                    ? 'bg-blue-500 text-white'
-                                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                                }`}
-                                        >
-                                            {status}
-                                        </button>
-                                    ))}
-                                    <button
-                                        onClick={() => handleSubmitAttendance(student.studentId)}
-                                        className="py-2 px-4 rounded-md text-sm font-semibold bg-green-500 text-white hover:bg-green-600 ml-2"
-                                    >
-                                        บันทึก
-                                    </button>
-                                </div>
+                        <>
+                            <div className="text-center mt-6">
+                                <button
+                                    onClick={handleSubmitAttendance} // เรียก handleSubmitAttendance โดยไม่มี studentId
+                                    className="py-2 px-6 rounded-md text-lg font-semibold bg-green-500 text-white hover:bg-green-600"
+                                    disabled={loading}
+                                >
+                                    {loading ? 'กำลังบันทึก...' : 'บันทึกการเช็คชื่อ'}
+                                </button>
                             </div>
-                        ))
+                            {students.map(student => (
+                                <div key={student._id} className="bg-white shadow-md rounded-lg p-4 flex flex-col sm:flex-row justify-between items-center">
+                                    <div className="mb-2 sm:mb-0 sm:w-1/2">
+                                        <p className="text-lg font-medium text-gray-700">{student.firstName} {student.lastName} ({student.studentId})</p>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2 sm:w-1/2 justify-end">
+                                        {['มา', 'ป่วย', 'ลา', 'ขาด'].map(status => (
+                                            <button
+                                                key={status}
+                                                onClick={() => handleStatusChange(student._id, status)}
+                                                className={`py-2 px-4 rounded-md text-sm font-semibold
+                                                    ${attendanceStatus[student._id] === status
+                                                        ? 'bg-blue-500 text-white'
+                                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                                    }`}
+                                            >
+                                                {status}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                            
+                        </>
                     ) : (
                         <p className="text-center text-gray-500">ไม่พบข้อมูลนักเรียนในชั้นเรียนนี้</p>
                     )}

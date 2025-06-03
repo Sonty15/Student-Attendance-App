@@ -21,14 +21,15 @@ router.route('/').get(async (req, res) => {
 // เพิ่มนักเรียนใหม่
 router.route('/add').post(async (req, res) => {
     try {
-        const { studentId, firstName, lastName, studentClass, level } = req.body;
+        const { studentId, firstName, lastName, studentClass, level, gender } = req.body;
 
         const newStudent = new Student({
             studentId,
             firstName,
             lastName,
             class: studentClass,
-            level
+            level,
+            gender
         });
 
         await newStudent.save();

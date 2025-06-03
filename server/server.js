@@ -8,7 +8,7 @@ const studentsRouter = require('./routes/students');
 const attendanceRouter = require('./routes/attendance');
 
 const app = express();
-const port = process.env.PORT || 4422;
+const port = process.env.PORT || 3322;
 
 // Middleware
 app.use(cors());

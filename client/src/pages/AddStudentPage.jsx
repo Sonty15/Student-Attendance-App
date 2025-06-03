@@ -10,6 +10,7 @@ function AddStudentPage() {
     const [lastName, setLastName] = useState('');
     const [studentClass, setStudentClass] = useState('อนุบาล 2');
     const [level, setLevel] = useState('อนุบาล');
+    const [gender, setGender] = useState('');
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -37,7 +38,8 @@ function AddStudentPage() {
                 firstName,
                 lastName,
                 studentClass, // ใช้ชื่อตัวแปรที่ตรงกับ Backend
-                level
+                level,
+                gender
             });
             setMessage('เพิ่มนักเรียนสำเร็จ!');
             // Clear form
@@ -46,6 +48,7 @@ function AddStudentPage() {
             setLastName('');
             setStudentClass('อนุบาล 2');
             setLevel('อนุบาล');
+            setGender('');
         } catch (error) {
             console.error("Error adding student:", error);
             if (error.response && error.response.status === 400) {
@@ -69,11 +72,11 @@ function AddStudentPage() {
             )}
             <form onSubmit={handleSubmit}>
                 <div className="mb-4">
-                    <label htmlFor="studentId" className="block text-gray-700 text-sm font-bold mb-2">รหัสนักเรียน:</label>
+                    <label htmlFor="studentId" className="block text-gray-700 text-sm font-bold mb-2">เลขที่:</label>
                     <input
                         type="text"
                         id="studentId"
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline"
                         value={studentId}
                         onChange={(e) => setStudentId(e.target.value)}
                         required
@@ -84,7 +87,7 @@ function AddStudentPage() {
                     <input
                         type="text"
                         id="firstName"
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         required
@@ -95,17 +98,31 @@ function AddStudentPage() {
                     <input
                         type="text"
                         id="lastName"
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
                         required
                     />
                 </div>
                 <div className="mb-4">
+                    <label htmlFor="gender" className="block text-gray-700 text-sm font-bold mb-2">เพศ:</label>
+                    <select
+                        id="gender"
+                        className="shadow border rounded w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline"
+                        value={gender}
+                        onChange={(e) => setGender(e.target.value)}
+                        required
+                    >
+                        <option value="">เลือกเพศ</option>
+                        <option value="ชาย">ชาย</option>
+                        <option value="หญิง">หญิง</option>
+                    </select>
+                </div>
+                <div className="mb-4">
                     <label htmlFor="level" className="block text-gray-700 text-sm font-bold mb-2">ระดับ:</label>
                     <select
                         id="level"
-                        className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow border rounded w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline"
                         value={level}
                         onChange={handleLevelChange}
                         required
@@ -119,7 +136,7 @@ function AddStudentPage() {
                     <label htmlFor="studentClass" className="block text-gray-700 text-sm font-bold mb-2">ชั้นเรียน:</label>
                     <select
                         id="studentClass"
-                        className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow border rounded w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline"
                         value={studentClass}
                         onChange={(e) => setStudentClass(e.target.value)}
                         required
